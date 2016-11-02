@@ -18,20 +18,19 @@ When you send along an ```event``` property with the ```heap.push()``` method yo
 #### Example: tracking a custom event
 
 ```javascript
-var heap = require('heap-server')('--your-heap-app-id--');
+const Heap = require('heap-server');
+const heapClient = new Heap('--your-heap-app-id--');
 
-heap.push({
-  identity: "john@doe.org",
-  event: "Custom event name that shows up in Heap Analytics",
-  properties: { // extra event properties are optional
+heapClient
+  .push({
+    identity: "john@doe.org",
+    event: "Custom event name that shows up in Heap Analytics",
+    properties: { // extra event properties are optional
     "foo" : "bar"
-  }
-}, function(err, foo){
-  if(err){
-    return;
-  }
-  console.log(foo);
-});
+    }
+  })
+  .then(foo => console.log(foo))
+  .catch(err => console.log(err));
 
 // or no callback
 
@@ -49,21 +48,18 @@ heap.push({
 You can also use this to update properties for an existing user.
 
 ```javascript
-var heap = require('heap-server')('--your-heap-app-id--');
+const Heap = require('heap-server');
+const heapClient = new Heap('--your-heap-app-id--');
 
-heap.push({
-  identity: 'john@doe.orgfoobar',
-  properties: {
-    'foo': 'bar',
-    'random': 'bogus'
-  }
-},
-function(err, result){
-    if(err){
-      return;
+heapClient
+  .push({
+    identity: 'john@doe.orgfoobar',
+    properties: {
+      'foo': 'bar',
+      'random': 'bogus'
     }
-    console.log(result);
-});
+  })
+  .then(result => console.log(result));
 
 
 // or no callback
