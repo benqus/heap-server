@@ -2,6 +2,9 @@
   "name": "heap-server",
   "version": "1.1.2",
   "main": "./lib/heap-server.js",
+  "engines": {
+    "node": "6.9.0"
+  },
   "description": "Heap Analytics server-side events helper",
   "homepage": "https://github.com/anthonyringoet/heap-server",
   "bugs": "https://github.com/anthonyringoet/heap-server/issues",
