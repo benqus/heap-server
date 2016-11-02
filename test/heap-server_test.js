@@ -1,43 +1,71 @@
-'use strict';
+const chai = require('chai');
+const sinon = require('sinon');
+const Promise = require('bluebird');
 
-var heap = require('../lib/heap-server.js')('--some-key--');
+const Heap = require('../lib/heap-server.js');
 
-/*
-  ======== A Handy Little Mocha Reference ========
-  https://github.com/visionmedia/mocha/
+const app_id = '--some-key--';
 
-  Test assertions:
-    assert.fail(actual, expected, message, operator)
-    assert(value, message), assert.ok(value, [message])
-    assert.equal(actual, expected, [message])
-    assert.notEqual(actual, expected, [message])
-    assert.deepEqual(actual, expected, [message])
-    assert.notDeepEqual(actual, expected, [message])
-    assert.strictEqual(actual, expected, [message])
-    assert.notStrictEqual(actual, expected, [message])
-    assert.throws(block, [error], [message])
-    assert.doesNotThrow(block, [message])
-    assert.ifError(value)
+const { assert, expect } = chai;
 
-    Apart from assert, Mocha allows you to use any of the following assertion libraries:
-    - should.js
-    - chai
-    - expect.js
-    - better-assert
-*/
+describe('The client', () => {
 
-var assert = require('assert');
+  describe('is invoked without an id', () => {
 
-
-describe('The client', function(){
-  describe('is invoked without an id', function(){
-    it('should trow an error', function(done){
-
-      assert.throws(function(){
-        new heap();
-      });
-
+    it('should trow an error', (done) => {
+      assert.throws(() => new Heap());
       done();
-    })
+    });
+
   });
+
+  describe('functionality', () => {
+
+    let heapClient = null;
+
+    beforeEach(() => {
+      heapClient = new Heap(app_id);
+    });
+
+    it('sends a call to remote', () => {
+      const promise = new Promise(resolve => resolve());
+      const stub = sinon.stub(heapClient, 'send').returns(promise);
+
+      heapClient.push({ event: true });
+
+      expect(stub.callCount).to.equal(1);
+    });
+
+    it('sends a call to "track" endpoint', () => {
+      const promise = new Promise(resolve => resolve());
+      const stub = sinon.stub(heapClient, 'send').returns(promise);
+      const event = 'someEvent';
+
+      heapClient.push({ event });
+
+      expect(stub.getCall(0).args).to.deep.equal([
+        'https://heapanalytics.com/api/track',
+        true,
+        'POST',
+        { app_id, event }
+      ]);
+    });
+
+    it('sends a call to "identify" endpoint', () => {
+      const promise = new Promise(resolve => resolve());
+      const stub = sinon.stub(heapClient, 'send').returns(promise);
+      const payload = { a: 'a'};
+
+      heapClient.push({ payload });
+
+      expect(stub.getCall(0).args).to.deep.equal([
+        'https://heapanalytics.com/api/identify',
+        true,
+        'POST',
+        { app_id, payload }
+      ]);
+    });
+
+  });
+
 });
